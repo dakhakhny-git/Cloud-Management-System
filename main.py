@@ -13,8 +13,9 @@ def run(cmd, timeout=120):
     except subprocess.TimeoutExpired:
         return False, "", "Command timed out"
 
-
+# --------------------
 # Docker actions
+# --------------------
 def create_dockerfile():
     path_str = input("Dockerfile path (example: ./Dockerfile): ").strip()
     print("Type Dockerfile lines. Type EOF to finish.")
