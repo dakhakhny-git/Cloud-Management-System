@@ -219,3 +219,6 @@ __pycache__/
 # macOS
 .DS_Store
 
+*.qcow2
+*.iso
+*.img

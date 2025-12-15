@@ -1,8 +1,8 @@
 {
-  "name": "vm1",
+  "name": "vm2",
   "cpu": 2,
   "memory_mb": 2048,
   "disk_gb": 20,
-  "disk_path": "./vm1.qcow2"
+  "disk_path": "vm2_from_config.qcow2"
 }
 
