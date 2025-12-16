@@ -230,7 +230,7 @@ def create_vm_from_config():
 
 
 # --------------------
-# Menus (simple UI)
+# Menus (simple User Interface)
 # --------------------
 def docker_menu():
     while True:
