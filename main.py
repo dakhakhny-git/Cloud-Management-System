@@ -17,7 +17,7 @@ def run(cmd, timeout=120):
 # Docker actions
 # --------------------
 def create_dockerfile():
-    path_str = input("Dockerfile path (example: ./Dockerfile): ").strip()
+    path_str = input("Dockerfile path (example: /Users/you/Desktop/Cloud-Management-System/Dockerfile or ./Dockerfile): ").strip()
     print("Type Dockerfile lines. Type EOF to finish.")
 
     lines = []
