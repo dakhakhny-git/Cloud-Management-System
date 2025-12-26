@@ -1,8 +1,8 @@
 {
-  "name": "vm2",
+  "name": "vm-test2",
   "cpu": 2,
   "memory_mb": 2048,
   "disk_gb": 20,
-  "disk_path": "vm2_from_config.qcow2"
+  "disk_path": "vm-test2_from_config.qcow2"
 }
 
