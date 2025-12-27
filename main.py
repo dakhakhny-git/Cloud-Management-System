@@ -153,7 +153,7 @@ def create_vm_interactive():
         print(err or out)
         return
 
-    # ✅ NEW: optional ISO attach
+    # optional ISO attach
     iso_path = input("Ubuntu ISO path (press Enter to skip): ").strip()
     iso_path = iso_path.strip().strip('"').strip("'")
 
@@ -234,7 +234,7 @@ def create_vm_from_config():
 
     cmd = ["qemu-system-x86_64", "-m", str(mem), "-smp", str(cpu), "-hda", disk_path]
 
-    # If ISO provided, boot installer
+    
     if iso_path:
         iso = Path(iso_path).expanduser().resolve()
         if not iso.exists():
