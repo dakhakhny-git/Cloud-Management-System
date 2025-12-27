@@ -2,6 +2,6 @@ mac interactive: /Applications/ubuntu-24.04.3-desktop-amd64.iso
 
 mac json config file -> "iso_path": "/Applications/ubuntu-24.04.3-desktop-amd64.iso"
 
-windows interactive : C:\Users\HP\Downloads\ubuntu-20.04.6-desktop-amd64.iso
+windows interactive : "C:\Users\HP\Downloads\ubuntu-20.04.6-desktop-amd64.iso"
 
 windows json config file -> "iso_path": "C:\\Users\\HP\\Downloads\\ubuntu-20.04.6-desktop-amd64.iso"
