@@ -1,5 +1,5 @@
 import json
-import subprocess #-> This allows Python talk to the terminal and run commands like docker ps, docker build, qemu-img, etc.
+import subprocess #-> This allows Python talk to the terminal and run commands like docker ps.
 from pathlib import Path
 
 
@@ -88,21 +88,18 @@ def stop_container():
 #Keep only the ones that contain that word
 #Print only those
 
-def search_local_images(): #-> this fucntions searches for LOCAL images by filtering results
-    q = input("Search local images (substring): ").strip().lower()
+def search_local_images():
+    q = input("Search local images: ").strip().lower()
 
-    ok, out, err = run(["docker", "images", "--format", "{{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}"])
-    #-> docker images --format "{{.Repository}}:{{.Tag}}    {{.ID}}    {{.Size}}"
-    # nginx:latest    123abc...    187MB
-    # python:3.11     55ddd1...    1.02GB
-    if not ok: #-> if false
-        print("❌ Failed to read local images.")
-        print(err) #-> display error
-        return #-> will exit the fucntion early
+    ok, out, err = run(["docker", "images"])
+    if not ok:
+        print("❌ Failed to list local images.")
+        print(err or out)
+        return
 
-    matches = [line for line in out.splitlines() if q in line.lower()]#-> takes big output text, and splits it into a list of lines -> ["nginx:latest...", "python:3.11..."]
-    print("Matches:")
+    matches = [line for line in out.splitlines() if q in line.lower()]
     print("\n".join(matches) if matches else "(no matches)")
+
 
 
 def search_dockerhub():
@@ -153,6 +150,7 @@ def create_vm_interactive():
         return
 
     ok, out, err = run(["qemu-img", "create", "-f", "qcow2", disk_path, f"{disk_gb}G"])
+    # Example -> qemu-img create -f qcow2 ./vm1.qcow2 20G
     if not ok:
         print("❌ Disk creation failed.")
         print(err or out)
@@ -161,14 +159,16 @@ def create_vm_interactive():
     print(f"✅ VM '{name}' created.")
     # Use Popen so the menu does not freeze
     cmd = ["qemu-system-x86_64", "-m", str(mem), "-smp", str(cpu), "-hda", disk_path]
+    # we build the VM launch command
     print("Launching VM with:")
-    print(" ".join(cmd))
+    print(" ".join(cmd)) # -> qemu-system-x86_64 -m 2048 -smp 2 -hda ./vm1.qcow2
     try:
         subprocess.Popen(cmd)
-        print("✅ VM launched (it may open in a separate window).")
+        print("✅ VM launched.")
     except Exception as e:
         print("❌ VM launch failed.")
         print(str(e))
+
 
 
 def create_vm_from_config():
@@ -186,6 +186,7 @@ def create_vm_from_config():
 
     try:
         cfg = json.loads(p.read_text(encoding="utf-8"))
+        #json.loads -> this function converts json text into python dictionary
     except Exception as e:
         print("❌ Config is not valid JSON.")
         print(str(e))
