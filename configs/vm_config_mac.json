@@ -1,0 +1,8 @@
+{
+  "name": "ubuntu-test1",
+  "cpu": 2,
+  "memory_mb": 2048,
+  "disk_gb": 30,
+  "disk_path": "./ubuntu-test1.qcow2",
+  "iso_path": "/Applications/ubuntu-24.04.3-desktop-amd64.iso"
+}
