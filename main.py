@@ -124,10 +124,9 @@ def pull_image():
 
 
 # --------------------
-# VM actions (QEMU)
+# VM actions (QEMU) -> my iso path: "C:\Users\HP\Downloads\ubuntu-20.04.6-desktop-amd64.iso"
 # --------------------
 def create_vm_interactive():
-    # Quick check so VM menu doesn't crash if QEMU isn't installed
     ok1, _, _ = run(["qemu-img", "--version"])
     ok2, _, _ = run(["qemu-system-x86_64", "--version"])
     if not (ok1 and ok2):
@@ -144,27 +143,36 @@ def create_vm_interactive():
         return
 
     disk_path = input("Disk path (example: ./vm1.qcow2): ").strip()
-
     if cpu <= 0 or mem <= 0 or disk_gb <= 0:
         print("❌ CPU/memory/disk must be positive.")
         return
 
     ok, out, err = run(["qemu-img", "create", "-f", "qcow2", disk_path, f"{disk_gb}G"])
-    # Example -> qemu-img create -f qcow2 ./vm1.qcow2 20G
     if not ok:
         print("❌ Disk creation failed.")
         print(err or out)
         return
 
-    print(f"✅ VM '{name}' created.")
-    # Use Popen so the menu does not freeze
+    # ✅ NEW: optional ISO attach
+    iso_path = input("Ubuntu ISO path (press Enter to skip): ").strip()
+    iso_path = iso_path.strip().strip('"').strip("'")
+
     cmd = ["qemu-system-x86_64", "-m", str(mem), "-smp", str(cpu), "-hda", disk_path]
-    # we build the VM launch command
-    print("Launching VM with:")
-    print(" ".join(cmd)) # -> qemu-system-x86_64 -m 2048 -smp 2 -hda ./vm1.qcow2
+
+    # If ISO provided, boot from it (installer)
+    if iso_path:
+        iso = Path(iso_path).expanduser().resolve()
+        if not iso.exists():
+            print("❌ ISO file not found.")
+            return
+        cmd += ["-cdrom", str(iso), "-boot", "d"]
+
     try:
         subprocess.Popen(cmd)
         print("✅ VM launched.")
+        if iso_path:
+            print("👉 Ubuntu installer should boot now. Install Ubuntu onto the qcow2 disk.")
+            print("👉 After installation, run again but press Enter for ISO to boot from disk.")
     except Exception as e:
         print("❌ VM launch failed.")
         print(str(e))
@@ -186,13 +194,12 @@ def create_vm_from_config():
 
     try:
         cfg = json.loads(p.read_text(encoding="utf-8"))
-        #json.loads -> this function converts json text into python dictionary
     except Exception as e:
         print("❌ Config is not valid JSON.")
         print(str(e))
         return
 
-    # Only required keys (no extras)
+    # Required keys only
     for k in ["name", "cpu", "memory_mb", "disk_gb", "disk_path"]:
         if k not in cfg:
             print(f"❌ Missing key in config: {k}")
@@ -212,6 +219,11 @@ def create_vm_from_config():
         print("❌ CPU/memory/disk must be positive.")
         return
 
+    # Optional ISO (can be missing or empty)
+    iso_path = str(cfg.get("iso_path", "")).strip()
+    iso_path = iso_path.strip('"').strip("'")  # Clean quotes if any
+
+    # Create disk (same behavior as before)
     ok, out, err = run(["qemu-img", "create", "-f", "qcow2", disk_path, f"{disk_gb}G"])
     if not ok:
         print("❌ Disk creation failed.")
@@ -219,15 +231,28 @@ def create_vm_from_config():
         return
 
     print(f"✅ VM '{name}' created from config.")
+
     cmd = ["qemu-system-x86_64", "-m", str(mem), "-smp", str(cpu), "-hda", disk_path]
-    print("Launching VM with:")
-    print(" ".join(cmd))
+
+    # If ISO provided, boot installer
+    if iso_path:
+        iso = Path(iso_path).expanduser().resolve()
+        if not iso.exists():
+            print("❌ ISO file not found.")
+            print(f"Path used: {iso}")
+            return
+        cmd += ["-cdrom", str(iso), "-boot", "d"]
+
     try:
         subprocess.Popen(cmd)
-        print("✅ VM launched (it may open in a separate window).")
+        print("✅ VM launched.")
+        if iso_path:
+            print("👉 Ubuntu installer should boot now. Install Ubuntu onto the qcow2 disk.")
+            print("👉 After install, remove iso_path from config (or set it to empty) to boot from disk.")
     except Exception as e:
         print("❌ VM launch failed.")
         print(str(e))
+
 
 
 # --------------------

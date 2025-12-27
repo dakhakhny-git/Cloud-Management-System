@@ -1,8 +1,8 @@
 {
-  "name": "vm-test2",
+  "name": "ubuntu-test1",
   "cpu": 2,
   "memory_mb": 2048,
-  "disk_gb": 20,
-  "disk_path": "vm-test2_from_config.qcow2"
+  "disk_gb": 30,
+  "disk_path": "./ubuntu-test1.qcow2",
+  "iso_path": "C:\\Users\\HP\\Downloads\\ubuntu-20.04.6-desktop-amd64.iso"
 }
-
