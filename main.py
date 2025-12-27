@@ -1,5 +1,5 @@
 import json
-import subprocess #-> This allows Python talk to the terminal and run commands like docker ps.
+import subprocess #-> This allows Python talk to the terminal and run commands like docker ps, qemu img etc
 from pathlib import Path
 
 
