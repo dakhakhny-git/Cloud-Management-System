@@ -6,12 +6,17 @@ from pathlib import Path
 # Run a terminal command and get (ok, stdout, stderr)
 def run(cmd, timeout=120):
     try:
-        p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-        return (p.returncode == 0), (p.stdout or "").strip(), (p.stderr or "").strip()
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)                          
+        return (p.returncode == 0), (p.stdout or "").strip(), (p.stderr or "").strip() # -> returns (ok, stdout, stderr)
+
     except FileNotFoundError:
         return False, "", f"Command not found: {cmd[0]}"
     except subprocess.TimeoutExpired:
         return False, "", "Command timed out"
+    
+    # p.returncode (exit code)
+    # p.stdout (normal output)
+    # p.stderr (error output)
 
 # --------------------
 # Docker actions
@@ -147,28 +152,30 @@ def create_vm_interactive():
         print("❌ CPU/memory/disk must be positive.")
         return
 
-    ok, out, err = run(["qemu-img", "create", "-f", "qcow2", disk_path, f"{disk_gb}G"])
+    ok, out, err = run(["qemu-img", "create", "-f", "qcow2", disk_path, f"{disk_gb}G"]) #-> create VM qcow2 disk image
     if not ok:
         print("❌ Disk creation failed.")
         print(err or out)
         return
 
-    # optional ISO attach
+    # ISO attach
     iso_path = input("Ubuntu ISO path (press Enter to skip): ").strip()
     iso_path = iso_path.strip().strip('"').strip("'")
 
-    cmd = ["qemu-system-x86_64", "-m", str(mem), "-smp", str(cpu), "-hda", disk_path]
+    cmd = ["qemu-system-x86_64", "-m", str(mem), "-smp", str(cpu), "-hda", disk_path] # -> qemu-system-x86_64 -m 2048 -smp 2 -hda ./vm1.qcow2
 
-    # If ISO provided, boot from it (installer)
+    # If ISO provided, boot from it installer
     if iso_path:
         iso = Path(iso_path).expanduser().resolve()
         if not iso.exists():
             print("❌ ISO file not found.")
             return
         cmd += ["-cdrom", str(iso), "-boot", "d"]
+        # -cdrom <iso> → attach ISO like a CD/DVD drive
+        # -boot d → boot from CD/DVD first (so the installer starts)
 
     try:
-        subprocess.Popen(cmd)
+        subprocess.Popen(cmd) # -> returns control to user while VM runs
         print("✅ VM launched.")
         if iso_path:
             print("👉 Ubuntu installer should boot now. Install Ubuntu onto the qcow2 disk.")
@@ -199,7 +206,7 @@ def create_vm_from_config():
         print(str(e))
         return
 
-    # Required keys only
+    # Required inputs only
     for k in ["name", "cpu", "memory_mb", "disk_gb", "disk_path"]:
         if k not in cfg:
             print(f"❌ Missing key in config: {k}")
@@ -224,7 +231,7 @@ def create_vm_from_config():
     iso_path = iso_path.strip('"').strip("'")  # Clean quotes if any
 
     # Create disk (same behavior as before)
-    ok, out, err = run(["qemu-img", "create", "-f", "qcow2", disk_path, f"{disk_gb}G"])
+    ok, out, err = run(["qemu-img", "create", "-f", "qcow2", disk_path, f"{disk_gb}G"]) #-> create VM qcow2 disk image
     if not ok:
         print("❌ Disk creation failed.")
         print(err or out)
@@ -232,9 +239,8 @@ def create_vm_from_config():
 
     print(f"✅ VM '{name}' created from config.")
 
-    cmd = ["qemu-system-x86_64", "-m", str(mem), "-smp", str(cpu), "-hda", disk_path]
+    cmd = ["qemu-system-x86_64", "-m", str(mem), "-smp", str(cpu), "-hda", disk_path] # -> qemu-system-x86_64 -m 2048 -smp 2 -hda ./vm1.qcow2
 
-    
     if iso_path:
         iso = Path(iso_path).expanduser().resolve()
         if not iso.exists():
@@ -242,9 +248,11 @@ def create_vm_from_config():
             print(f"Path used: {iso}")
             return
         cmd += ["-cdrom", str(iso), "-boot", "d"]
+        # -cdrom <iso> → attach ISO like a CD/DVD drive
+        # -boot d → boot from CD/DVD first (so the installer starts)
 
     try:
-        subprocess.Popen(cmd)
+        subprocess.Popen(cmd) # -> returns control to user while VM runs
         print("✅ VM launched.")
         if iso_path:
             print("👉 Ubuntu installer should boot now. Install Ubuntu onto the qcow2 disk.")
