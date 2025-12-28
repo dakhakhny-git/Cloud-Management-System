@@ -166,7 +166,7 @@ def create_vm_interactive():
 
     # If ISO provided, boot from it installer
     if iso_path:
-        iso = Path(iso_path).expanduser().resolve()
+        iso = Path(iso_path).expanduser().resolve() 
         if not iso.exists():
             print("❌ ISO file not found.")
             return
@@ -226,11 +226,9 @@ def create_vm_from_config():
         print("❌ CPU/memory/disk must be positive.")
         return
 
-    # Optional ISO (can be missing or empty)
     iso_path = str(cfg.get("iso_path", "")).strip()
-    iso_path = iso_path.strip('"').strip("'")  # Clean quotes if any
+    iso_path = iso_path.strip('"').strip("'")
 
-    # Create disk (same behavior as before)
     ok, out, err = run(["qemu-img", "create", "-f", "qcow2", disk_path, f"{disk_gb}G"]) #-> create VM qcow2 disk image
     if not ok:
         print("❌ Disk creation failed.")
